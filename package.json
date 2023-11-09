@@ -1,5 +1,5 @@
 {
-  "name": "base2048",
+  "name": "@mikeshardmind/base2048",
   "version": "1.0.0",
   "description": "An implementation of base2048 compatible with corresponding rust and python libraries",
   "scripts": {
