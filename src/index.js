@@ -6,8 +6,8 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 Copyright (C) 2023 Michael Hall <https://github.com/mikeshardmind>
 */
 
-import { DEC_TABLE } from "./DEC_TABLE";
-import { ENC_TABLE } from "./ENC_TABLE";
+import { DEC_TABLE } from "./DEC_TABLE.js";
+import { ENC_TABLE } from "./ENC_TABLE.js";
 
 class Peekable {
     constructor(iterable) {
