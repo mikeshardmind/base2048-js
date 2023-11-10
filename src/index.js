@@ -9,37 +9,9 @@ Copyright (C) 2023 Michael Hall <https://github.com/mikeshardmind>
 import { DEC_TABLE } from "./DEC_TABLE.js";
 import { ENC_TABLE } from "./ENC_TABLE.js";
 
-class Peekable {
-    constructor(iterable) {
-        this._it = iterable[Symbol.iterator]();
-        this._cache = [];
-    }
-    [Symbol.iterator]() {
-        return this;
-    }
-    has_more() {
-        try {
-            this.peek();
-        } catch (error) {
-            return false;
-        }
-        return true;
-    }
-    peek() {
-        if (this._cache.length === 0) {
-            this._cache.push(this._it.next().value);
-        }
-        return this._cache[0];
-    }
-    next() {
-        if (this._cache.length > 0) {
-            return this._cache.shift();
-        }
-        return this._it.next().value;
-    }
-}
 
 const TAIL = ["།", "༎", "༏", "༐", "༑", "༆", "༈", "༒"];
+
 const ZERO_SET = new Set(DEC_TABLE.reduce((acc, value, idx) => {
     if (value === 0xFFFF) {
         acc.push(idx);
@@ -75,10 +47,10 @@ export const decode = str => {
     const ret = [];
     let remaining = 0;
     let stage = 0;
-    const chars = new Peekable(str);
     let residue = 0;
-    for (const [i, c] of chars) {
+    for (var i = 0; i < str.length; i++) {
         residue = (residue + 11) % 8;
+        const c = str.charAt(i);
         const numeric = c.charCodeAt(0);
         if (numeric > 4339) {
             const msg = `Invalid character ${i}: [${numeric}]`;
@@ -87,9 +59,8 @@ export const decode = str => {
         let n_new_bits = 0;
         let new_bits = 0;
         if (ZERO_SET.has(numeric)) {
-            if (chars.has_more()) {
-                const [i_next, c_next] = chars.peek();
-                const msg = `Unexpected character ${i_next}: [${c_next}] after termination sequence ${i}: [${c}]`;
+            if (i + 1 < str.length) {
+                const msg = `Unexpected character ${i+1}: [${str.charAt(i+1)}] after termination sequence ${i}: [${c}]`;
                 throw new DecodeError(msg);
             }
             try {
@@ -111,7 +82,7 @@ export const decode = str => {
             }
         } else {
             new_bits = DEC_TABLE[numeric];
-            n_new_bits = chars.has_more() ? 11 : 11 - residue;
+            n_new_bits = i + 1 < str.length ? 11 : 11 - residue;
         }
         remaining += n_new_bits;
         stage = (stage << n_new_bits) | new_bits;
